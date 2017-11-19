@@ -10,6 +10,8 @@ spec:
         app: spot-termination-notice-handler
       name: spot-termination-notice-handler
     spec:
+      serviceAccount: spot-termination-handler
+      serviceAccountName: spot-termination-handler
       containers:
       - image: mumoshu/kube-spot-termination-notice-handler:1.7.0-0.9.2
         imagePullPolicy: IfNotPresent
@@ -23,3 +25,40 @@ spec:
             valueFrom:
               fieldRef:
                 fieldPath: metadata.namespace
+
+---
+kind: ClusterRoleBinding
+apiVersion: rbac.authorization.k8s.io/v1beta1
+metadata:
+  name: spot-termination-handler
+roleRef:
+  kind: ClusterRole
+  name: spot-termination-handler
+  apiGroup: rbac.authorization.k8s.io
+subjects:
+- kind: ServiceAccount
+  name: spot-termination-handler
+  namespace: kube-system
+
+---
+apiVersion: rbac.authorization.k8s.io/v1beta1
+kind: ClusterRole
+metadata:
+  name: spot-termination-handler
+  namespace: kube-system
+rules:
+- apiGroups:
+  - ""
+  resources:
+  - pods
+  verbs:
+  - get
+  - list
+  - watch
+
+---
+apiVersion: v1
+kind: ServiceAccount
+metadata:
+  name: spot-termination-handler
+  namespace: kube-system

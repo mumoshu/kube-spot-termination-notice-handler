@@ -47,7 +47,8 @@ echo $(date): ${http_status}
 # The URL should look something like: https://hooks.slack.com/services/T67UBFNHQ/B4Q7WQM52/1ctEoFjkjdjwsa22934
 #
 if [ "${SLACK_URL}" != "" ]; then
-  SLACK_MESSAGE="Spot Termination Detected on node: $NODE_NAME"
+  RUNNING_PODS=$(kubectl get pods --all-namespaces -o wide | grep -v kube-system | egrep "${NODE_NAME}|NODE")
+  SLACK_MESSAGE="Spot Termination Detected on node: $NODE_NAME\nPods running:\n${RUNNING_PODS}"
   curl -X POST --data "payload={\"text\": \":warning: ${SLACK_MESSAGE}\"}" ${SLACK_URL}
 fi
 
